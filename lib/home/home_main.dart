@@ -4,9 +4,11 @@ import 'package:learn_megnagmet/controller/controller.dart';
 import 'package:learn_megnagmet/home/home_screen.dart';
 import '../My_cources/ongoing_completed_main_screen.dart';
 import '../chate/chate_screen.dart';
+import '../models/profile.dart';
+import '../models/user.dart';
 import '../profile/my_profile.dart';
 import '../utils/slider_page_data_model.dart';
-
+import '../profile/edit_screen.dart';
 class HomeMainScreen extends StatefulWidget {
   const HomeMainScreen({Key? key}) : super(key: key);
 
@@ -15,8 +17,24 @@ class HomeMainScreen extends StatefulWidget {
 }
 
 class _HomeMainScreenState extends State<HomeMainScreen> {
-  // int currentvalue = 0;
-  List userDetail = Utils.getUser();
+  User? currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = await Utils.getUser();
+    setState(() {
+      currentUser = user;
+      if (user != null) {
+        final profile = Profile.fromUser(user);
+        // Sử dụng profile ở đây
+      }
+    });
+  }
 
   HomeMainController controller = Get.put(HomeMainController());
 
@@ -25,7 +43,9 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
     return GetBuilder<HomeMainController>(
       init: HomeMainController(),
       builder: (controller) => Scaffold(
-        body: _body(),
+        body: currentUser == null 
+          ? Center(child: CircularProgressIndicator())
+          : _body(),
         bottomNavigationBar: Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
@@ -150,7 +170,12 @@ class _HomeMainScreenState extends State<HomeMainScreen> {
         //return Center(child: Container(child: Text("3")));
         return const ChateScreen();
       case 3:
-        return MyProfile(user_detail: userDetail[0]);
+        if (currentUser != null) {
+          final profile = Profile.fromUser(currentUser!);
+          return MyProfile(profile_detail: profile);
+        } else {
+          return const Center(child: Text("No profile data available"));
+        }
       default:
         return const Center(
           child: Text("inavalid"),

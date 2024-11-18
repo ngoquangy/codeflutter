@@ -1,31 +1,63 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../constant/apilist.dart';
 import '../models/profile.dart';
+import 'package:dio/dio.dart';
 
 class ProfileRepository {
-  final String apiUrl = api_updateprofile; // URL của API
+  final dio = Dio(BaseOptions(
+    baseUrl: base,
+    connectTimeout: Duration(seconds: 30),
+    receiveTimeout: Duration(seconds: 30),
+    validateStatus: (status) => true,
+  ));
+
+  Future<Profile> getProfile() async {
+    try {
+      final response = await dio.get('$base/profile', 
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        return Profile.fromJson(response.data['data']);
+      } else {
+        throw Exception('Failed to fetch profile');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch profile: $e');
+    }
+  }
 
   Future<bool> updateProfile(Profile profile) async {
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token, // Nếu có token
+      print('Updating profile with data: ${profile.toJson()}');
+      
+      final response = await dio.post(
+        '/updateprofile',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+        data: {
+          'email': profile.email,
+          'full_name': profile.full_name,
+          'phone': profile.phone,
+          'address': profile.address,
+          'avatar_url': profile.photo,
         },
-        body: jsonEncode(profile.toJson()),
       );
-      print(response.statusCode);
-      print(response.body);
-      if (response.statusCode == 200) {
-        return true; // Cập nhật thành công
-      } else {
-        print('Failed to update profile: ${response.body}');
-        return false; // Thất bại
-      }
-    } catch (e) {
-      print('Error: $e');
+      
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+      
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      print('Dio error type: ${e.type}');
+      print('Dio error message: ${e.message}');
       return false;
     }
   }

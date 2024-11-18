@@ -9,7 +9,6 @@ import 'package:learn_megnagmet/providers/login_provider.dart';
 import 'package:learn_megnagmet/utils/shared_pref.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../utils/screen_size.dart';
 
 final passwordVisibilityProvider = StateProvider<bool>((ref) => true);
 
@@ -337,7 +336,7 @@ class EmptyState extends ConsumerWidget {
     return Center(
       child: RichText(
           text: TextSpan(
-              text: 'Already have an account?',
+              text: 'Don\'t have an account?',
               style: TextStyle(
                   color: Colors.black, fontSize: 15.sp, fontFamily: 'Gilroy'),
               children: [

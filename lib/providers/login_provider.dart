@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constant/apilist.dart';
-import '../models/profile.dart';
+import '../models/user.dart';
 
 // Định nghĩa trạng thái cho quá trình đăng nhập
 enum LoginStatus { initial, loading, success, error }
@@ -22,28 +23,35 @@ class LoginNotifier extends StateNotifier<LoginStatus> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
-      print('RESPONSE CODE: ${response.statusCode}');
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Giả sử API trả về token trong response
-        String token = data['token']['token']; // Đảm bảo biến token được định nghĩa
-        Profile initialProfile = Profile(
-            phone: data['user']['phone'],
-            full_name: data['user']['full_name'],
-            address: data['user']['address'],
-            photo: data['user']['photo']);
+        String newToken = data['token']['token'];
         
-        // Lưu token hoặc thực hiện các tác vụ khác tại đây
-        state = LoginStatus.success;
+        // Cập nhật token toàn cục
+        token = newToken;
+        
+        // Tạo user object từ response
+        final user = User(
+          email: data['user']['email'],
+          full_name: data['user']['full_name'],
+          phone: data['user']['phone'],
+          address: data['user']['address'],
+          password: password,
+          photo: data['user']['photo'] ?? '',
+        );
         print('Login successful: $initialProfile');
+        // Lưu thông tin user vào SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('current_user', jsonEncode(user.toJson()));
+        await prefs.setString('token', newToken);
+        
+        state = LoginStatus.success;
       } else {
         state = LoginStatus.error;
-        print('Login failed: ${response.body}');
       }
     } catch (error) {
       state = LoginStatus.error;
-      print('Error: $error');
     }
   }
 }

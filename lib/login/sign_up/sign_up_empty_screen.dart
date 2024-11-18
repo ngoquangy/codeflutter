@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:learn_megnagmet/login/login_empty_state.dart';
-import 'package:learn_megnagmet/login/sign_up/sign_in_phonenumber.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learn_megnagmet/models/user.dart';
+import 'package:learn_megnagmet/home/home_main.dart';
 
 import '../../statenotifier/auth_state_notifier.dart';
-import '../../utils/screen_size.dart';
 
 class SignInEmptyScreen extends ConsumerWidget {
   const SignInEmptyScreen({Key? key}) : super(key: key);
@@ -268,10 +267,8 @@ class SignInEmptyScreen extends ConsumerWidget {
                 .read(authStateNotifierProvider.notifier)
                 .registerUser(user)
                 .then((_) {
-              // Thông báo đăng ký thành công
-              Get.snackbar("Success", "Registration successful!",
-                  snackPosition: SnackPosition.BOTTOM);
-              Get.to(const SignInPhonenumber());
+              // Chuyển hướng đến trang chủ nếu đăng ký thành công
+              Get.offAll(() => const HomeMainScreen());
             }).catchError((error) {
               // Thông báo lỗi nếu có
               Get.snackbar("Error", "Registration failed: $error",

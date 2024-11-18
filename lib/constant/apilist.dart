@@ -9,6 +9,10 @@ final String api_updateprofile = base +
     "/updateprofile"; // Thay bằng API thật localhost:8000/api/v1/register
 final String api_ge_product_list = base + "/getproductcat"; //
 final String api_login = base + "/login";
-String token = '';
-Profile initialProfile =
-    Profile(full_name: 'md', phone: '', address: '', photo: '');
+String token = ''; //s
+Profile initialProfile = Profile(
+    full_name: 'md',
+    phone: '',
+    address: '',
+    photo: '',
+    email: 'default@email.com');

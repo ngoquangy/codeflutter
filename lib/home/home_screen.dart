@@ -20,6 +20,7 @@ import 'package:learn_megnagmet/models/trending_cource.dart';
 
 import 'package:learn_megnagmet/utils/slider_page_data_model.dart';
 
+import '../models/user.dart';
 import '../utils/screen_size.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,16 +36,22 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Trending> trendingCource = Utils.getTrending();
   List<Recent> recentAdded = Utils.getRecentAdded();
   HomeController homecontroller = Get.put(HomeController());
+  late CarouselController carouselController;
+  User? currentUser;
 
-  // int currentpage = 0;
-  PageController controller = PageController();
-  bool buttonvalue = false;
-  int currentvalue = 0;
-  List userDetail = Utils.getUser();
   @override
   void initState() {
-    pages = Utils.getHomeSliderPages();
     super.initState();
+    pages = Utils.getHomeSliderPages();
+    carouselController = CarouselController();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = await Utils.getUser();
+    setState(() {
+      currentUser = user;
+    });
   }
 
   toggle(int index) {
@@ -90,12 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.symmetric(horizontal: 20.w),
                       child: Row(children: [
                         Image(
-                          image: AssetImage(userDetail[0].photo),
+                          image: AssetImage(currentUser?.photo ?? 'assets/default_avatar.png'),
                           height: 50.h,
                           width: 49.93.w,
                         ),
                         SizedBox(width: 10.w),
-                        Text("Welcome,${userDetail[0].full_name}",
+                        Text("Welcome, ${currentUser?.full_name ?? 'User'}",
                             style: TextStyle(
                                 fontFamily: 'Gilroy',
                                 color: const Color(0XFF000000),
@@ -332,7 +339,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    controller.dispose();
     super.dispose();
   }
 

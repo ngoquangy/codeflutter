@@ -21,19 +21,23 @@ import '../models/overview_page_grid_model.dart';
 import '../models/profile_option.dart';
 import '../models/riview_data.dart';
 
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class Utils {
-  static List<User> getUser() {
-  return [
-    User(
-        full_name: "Kevin",
-        email: "sdsdsd123@gmail.com",
-        password: 'your_password', // Cung cấp giá trị cho password
-        phone: '1234567895', // Cung cấp giá trị cho phone
-        address: 'your_address', // Cung cấp giá trị cho address
-        photo: "assets/person.png",
-        // Cung cấp giá trị cho các tham số khác nếu cần
-      ),
-    ];
+  static Future<User?> getUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userJson = prefs.getString('current_user');
+      if (userJson != null) {
+        final userData = json.decode(userJson);
+        return User.fromJson(userData);
+      }
+      return null;
+    } catch (e) {
+      print('Error getting user: $e');
+      return null;
+    }
   }
 
   static List<Sliders> getSliderPages() {
